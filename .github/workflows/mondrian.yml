@@ -1,0 +1,33 @@
+name: Redmi K60 mondrian
+run-name: Redmi K60 · 5.10.198-android12-9 · KernelSU-Next
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      version: android12-5.10
+      android_version: android12
+      kernel_version: "5.10"
+      sublevel: "198"
+      os_patch_level: "2023-11"
+      kernel_source_tag: android12-5.10-2023-11_r2
+      kernel_source_commit: 226a9632f13d26e93fa416f6b003712b69118322
+      page_size: 4k
+      root_flavor: next
+      variant: KernelSU-Next
+      root_commit: 4776e7cd67663a532ca49ec9523cc6e9739d6cf2
+      susfs_commit: 784ac9e6fd49bb02499b5b60c57ccc9d0c680204
+      nomount_commit: e4f201e348aec4189b270a80d2344aebd0da7d2b
+      kernel_patches_commit: 2adda91f59f29a446276b98d3d58affd424c6356
+      anykernel3_commit: e1e9dce98430c5c6f231f7094a8c7f4ecaf50948
+      feature_set: SUSFS+NoMount+BBG+Misc
+      brand_name: ""
+      keep_kmi: true
+      allow_version_mismatch: false

@@ -1,7 +1,7 @@
 name: Kernel Build Process
 permissions:
-  contents: write
-  actions: write
+  contents: read
+  actions: read
 
 on:
   workflow_call:
@@ -20,6 +20,12 @@ on:
         type: string
       os_patch_level:
         required: true
+        type: string
+      kernel_source_tag:
+        description: "Optional Android common release tag to use after syncing the monthly build environment"
+        type: string
+      kernel_source_commit:
+        description: "Expected full commit of the selected Android common release tag"
         type: string
       variant:
         required: false
@@ -140,6 +146,23 @@ jobs:
           android_version: ${{ inputs.android_version }}
           kernel_version: ${{ inputs.kernel_version }}
           os_patch_level: ${{ inputs.os_patch_level }}
+
+      - name: Select the device kernel source
+        if: inputs.kernel_source_tag != ''
+        working-directory: kernel/common
+        env:
+          SOURCE_TAG: ${{ inputs.kernel_source_tag }}
+          EXPECTED_COMMIT: ${{ inputs.kernel_source_commit }}
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_TAG" =~ ^android[0-9]+-[0-9]+\.[0-9]+-[0-9]{4}-[0-9]{2}_r[0-9]+$ ]]
+          [[ "$EXPECTED_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          git fetch --no-tags --depth=1 https://android.googlesource.com/kernel/common "refs/tags/$SOURCE_TAG"
+          actual=$(git rev-parse 'FETCH_HEAD^{commit}')
+          test "$actual" = "$EXPECTED_COMMIT"
+          git checkout --detach "$actual"
+          echo "KERNEL_SOURCE_COMMIT=$actual" >> "$GITHUB_ENV"
+          echo "Android common source: $SOURCE_TAG ($actual)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Initialize Config Fragment
         uses: ./.github/actions/initialize-config-fragment
