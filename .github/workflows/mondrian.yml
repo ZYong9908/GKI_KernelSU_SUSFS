@@ -9,7 +9,25 @@ permissions:
   actions: read
 
 jobs:
+  nomount:
+    runs-on: ubuntu-latest
+    outputs:
+      revision: ${{ steps.package.outputs.commit }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build the companion for the pinned NoMount kernel changes
+        id: package
+        uses: ./.github/actions/nomount-metamodule
+        with:
+          commit: e4f201e348aec4189b270a80d2344aebd0da7d2b
+      - uses: actions/upload-artifact@v7
+        with:
+          name: NoMount-Metamodule
+          path: ${{ steps.package.outputs.module_dir }}
+          if-no-files-found: error
+          compression-level: 0
   build:
+    needs: nomount
     uses: ./.github/workflows/build.yml
     with:
       version: android12-5.10
@@ -24,7 +42,7 @@ jobs:
       variant: KernelSU-Next
       root_commit: 4776e7cd67663a532ca49ec9523cc6e9739d6cf2
       susfs_commit: 784ac9e6fd49bb02499b5b60c57ccc9d0c680204
-      nomount_commit: e4f201e348aec4189b270a80d2344aebd0da7d2b
+      nomount_commit: ${{ needs.nomount.outputs.revision }}
       kernel_patches_commit: 2adda91f59f29a446276b98d3d58affd424c6356
       anykernel3_commit: e1e9dce98430c5c6f231f7094a8c7f4ecaf50948
       feature_set: SUSFS+NoMount+BBG+Misc
