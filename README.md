@@ -7,6 +7,8 @@
 
 </div>
 
+Redmi K60（mondrian）追梦 24.7.28 的专用构建和本地 boot 封装见[设备说明](docs/mondrian.md)。
+
 > [!CAUTION]
 > Wild Kernels is not responsible for bricked devices or damage. By flashing, you assume all risk. Back up your data and understand the risks before flashing.
 
